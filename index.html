@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🇩🇪 Quiz z Niemieckiego</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d1117;
+    --card: #161b22;
+    --border: #30363d;
+    --accent: #f7c948;
+    --accent2: #3fb950;
+    --red: #f85149;
+    --blue: #58a6ff;
+    --text: #e6edf3;
+    --muted: #8b949e;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Nunito', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    background-image: radial-gradient(ellipse at 20% 20%, #1c2a1c 0%, transparent 50%),
+                      radial-gradient(ellipse at 80% 80%, #1c1c2e 0%, transparent 50%);
+  }
+
+  h1 {
+    font-family: 'Fredoka One', cursive;
+    font-size: 2.4rem;
+    color: var(--accent);
+    text-align: center;
+    margin-bottom: 4px;
+    letter-spacing: 1px;
+    text-shadow: 0 0 30px rgba(247,201,72,0.3);
+  }
+
+  .subtitle {
+    color: var(--muted);
+    font-size: 0.9rem;
+    margin-bottom: 24px;
+    text-align: center;
+  }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+    width: 100%;
+    max-width: 620px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  }
+
+  /* TOP BAR */
+  .topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+
+  .score-badge {
+    background: linear-gradient(135deg, #f7c948, #e09b10);
+    color: #000;
+    font-weight: 800;
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-size: 0.95rem;
+  }
+
+  /* PROGRESS BAR */
+  .progress-wrap {
+    background: var(--border);
+    border-radius: 8px;
+    height: 8px;
+    margin-bottom: 20px;
+    overflow: hidden;
+  }
+
+  .progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #3fb950, #58a6ff);
+    border-radius: 8px;
+    transition: width 0.5s ease;
+  }
+
+  /* KATEGORIA */
+  .kategoria {
+    display: inline-block;
+    background: rgba(88,166,255,0.15);
+    color: var(--blue);
+    border: 1px solid rgba(88,166,255,0.3);
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 3px 12px;
+    margin-bottom: 16px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  /* PYTANIE */
+  .pytanie-box {
+    background: rgba(247,201,72,0.06);
+    border: 1px solid rgba(247,201,72,0.2);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    margin-bottom: 20px;
+    min-height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .pytanie-tekst {
+    font-size: 1.25rem;
+    font-weight: 700;
+    line-height: 1.5;
+  }
+
+  /* INPUT */
+  .input-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  input[type="text"] {
+    flex: 1;
+    background: #0d1117;
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-family: 'Nunito', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    padding: 12px 16px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  input[type="text"]:focus {
+    border-color: var(--accent);
+  }
+
+  input[type="text"].correct { border-color: var(--accent2); background: rgba(63,185,80,0.08); }
+  input[type="text"].wrong   { border-color: var(--red);    background: rgba(248,81,73,0.08); }
+
+  /* PRZYCISKI */
+  button {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: transform 0.1s, opacity 0.2s;
+  }
+
+  button:active { transform: scale(0.97); }
+  button:disabled { opacity: 0.4; cursor: default; transform: none; }
+
+  .btn-primary {
+    background: linear-gradient(135deg, #f7c948, #e09b10);
+    color: #000;
+    padding: 12px 24px;
+    font-size: 1rem;
+    white-space: nowrap;
+  }
+
+  .btn-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+
+  .btn-hint {
+    background: rgba(88,166,255,0.15);
+    color: var(--blue);
+    border: 1px solid rgba(88,166,255,0.3);
+    padding: 10px 18px;
+    font-size: 0.9rem;
+    flex: 1;
+  }
+
+  .btn-skip {
+    background: rgba(139,148,158,0.15);
+    color: var(--muted);
+    border: 1px solid rgba(139,148,158,0.3);
+    padding: 10px 18px;
+    font-size: 0.9rem;
+    flex: 1;
+  }
+
+  .btn-next {
+    background: linear-gradient(135deg, #3fb950, #2ea043);
+    color: #fff;
+    padding: 12px 30px;
+    font-size: 1rem;
+    width: 100%;
+    margin-top: 4px;
+  }
+
+  .btn-restart {
+    background: linear-gradient(135deg, #f7c948, #e09b10);
+    color: #000;
+    padding: 14px 36px;
+    font-size: 1.1rem;
+    margin-top: 20px;
+  }
+
+  /* FEEDBACK */
+  .feedback {
+    min-height: 28px;
+    font-size: 1rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 10px;
+    transition: all 0.3s;
+  }
+
+  .feedback.ok   { color: var(--accent2); }
+  .feedback.zle  { color: var(--red); }
+  .feedback.skip { color: var(--muted); }
+
+  .hint-tekst {
+    font-size: 0.88rem;
+    color: #fbbf24;
+    text-align: center;
+    min-height: 20px;
+    margin-bottom: 8px;
+  }
+
+  /* HISTORIA */
+  .historia {
+    margin-top: 16px;
+    border-top: 1px solid var(--border);
+    padding-top: 12px;
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+
+  .historia span { margin-right: 10px; }
+
+  /* EKRAN KOŃCA */
+  #ekran-koniec {
+    text-align: center;
+    display: none;
+  }
+
+  .wynik-liczba {
+    font-family: 'Fredoka One', cursive;
+    font-size: 4rem;
+    color: var(--accent);
+    line-height: 1;
+    margin: 16px 0 4px;
+  }
+
+  .wynik-max { font-size: 1.1rem; color: var(--muted); margin-bottom: 16px; }
+
+  .ocena {
+    font-size: 1.3rem;
+    font-weight: 800;
+    margin-bottom: 8px;
+  }
+
+  .pasek-koniec {
+    background: var(--border);
+    border-radius: 12px;
+    height: 16px;
+    margin: 16px 0;
+    overflow: hidden;
+  }
+
+  .pasek-koniec-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #3fb950, #f7c948);
+    border-radius: 12px;
+    transition: width 1s ease;
+  }
+
+  /* EKRAN START */
+  #ekran-start {
+    text-align: center;
+  }
+
+  #ekran-start p {
+    color: var(--muted);
+    margin-bottom: 8px;
+    font-size: 0.95rem;
+  }
+
+  .kategorie-lista {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    margin: 16px 0 24px;
+  }
+
+  .kat-tag {
+    background: rgba(63,185,80,0.1);
+    border: 1px solid rgba(63,185,80,0.3);
+    color: var(--accent2);
+    border-radius: 20px;
+    padding: 4px 14px;
+    font-size: 0.85rem;
+    font-weight: 700;
+  }
+
+  @keyframes pop {
+    0% { transform: scale(0.8); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  .pop { animation: pop 0.25s ease forwards; }
+</style>
+</head>
+<body>
+
+<h1>🇩🇪 Quiz z Niemieckiego</h1>
+<p class="subtitle">Klasa 7 · Słówka, Zwroty, Kolory, Liczby i więcej!</p>
+
+<div class="card">
+
+  <!-- EKRAN START -->
+  <div id="ekran-start">
+    <p>Sprawdź swoją wiedzę z języka niemieckiego!</p>
+    <p><strong>40 pytań</strong> w 5 kategoriach:</p>
+    <div class="kategorie-lista">
+      <span class="kat-tag">📚 Słówka</span>
+      <span class="kat-tag">🔢 Liczby</span>
+      <span class="kat-tag">🎨 Kolory</span>
+      <span class="kat-tag">💬 Zwroty</span>
+      <span class="kat-tag">📅 Dni tygodnia</span>
+    </div>
+    <p style="font-size:0.85rem; color:var(--muted); margin-bottom:24px;">
+      Za dobrą odpowiedź: <strong style="color:var(--accent2)">+2 pkt</strong> &nbsp;|&nbsp;
+      Z podpowiedzi: <strong style="color:#fbbf24">+1 pkt</strong>
+    </p>
+    <button class="btn-primary" onclick="startGra()" style="font-size:1.1rem; padding:14px 40px;">
+      ▶ Zacznij Quiz!
+    </button>
+  </div>
+
+  <!-- EKRAN GRY -->
+  <div id="ekran-gra" style="display:none;">
+    <div class="topbar">
+      <span id="lbl-postep">Pytanie 1 / 40</span>
+      <span class="score-badge" id="lbl-punkty">⭐ 0 pkt</span>
+    </div>
+
+    <div class="progress-wrap">
+      <div class="progress-bar" id="progress-bar" style="width:0%"></div>
+    </div>
+
+    <div class="kategoria" id="lbl-kat">Słówka</div>
+
+    <div class="pytanie-box">
+      <div class="pytanie-tekst" id="lbl-pytanie">Ładowanie...</div>
+    </div>
+
+    <div class="input-row">
+      <input type="text" id="odpowiedz" placeholder="Wpisz odpowiedź..." autocomplete="off" />
+      <button class="btn-primary" id="btn-ok" onclick="sprawdz()">✔ Sprawdź</button>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn-hint" id="btn-hint" onclick="podpowiedz()">💡 Podpowiedź (-1 pkt)</button>
+      <button class="btn-skip" id="btn-skip" onclick="pomin()">⏭ Pomiń</button>
+    </div>
+
+    <div class="hint-tekst" id="hint-tekst"></div>
+    <div class="feedback" id="feedback"></div>
+
+    <button class="btn-next" id="btn-dalej" style="display:none;" onclick="nastepne()">
+      ▶ Następne pytanie
+    </button>
+
+    <div class="historia" id="historia">
+      <strong>Ostatnie:</strong> —
+    </div>
+  </div>
+
+  <!-- EKRAN KOŃCA -->
+  <div id="ekran-koniec">
+    <div style="font-size:2.5rem;">🏁</div>
+    <h2 style="font-family:'Fredoka One',cursive; font-size:1.8rem; color:var(--accent); margin-top:8px;">
+      Koniec Quizu!
+    </h2>
+    <div class="wynik-liczba" id="wynik-liczba">0</div>
+    <div class="wynik-max" id="wynik-max">z 80 punktów</div>
+    <div class="pasek-koniec">
+      <div class="pasek-koniec-fill" id="pasek-koniec-fill" style="width:0%"></div>
+    </div>
+    <div class="ocena" id="ocena-tekst"></div>
+    <div style="color:var(--muted); font-size:0.9rem;" id="stat-tekst"></div>
+    <button class="btn-restart" onclick="restart()">🔄 Zagraj jeszcze raz!</button>
+  </div>
+
+</div>
+
+<script>
+const PYTANIA = [
+  // Słówka
+  { p:"Co znaczy 'der Hund'?",         o:["pies"],             h:"zwierzę domowe, szczeka",    k:"Słówka" },
+  { p:"Co znaczy 'die Katze'?",        o:["kot"],              h:"zwierzę domowe, miauczy",    k:"Słówka" },
+  { p:"Co znaczy 'das Buch'?",         o:["książka"],          h:"czytamy ją",                  k:"Słówka" },
+  { p:"Co znaczy 'die Schule'?",       o:["szkoła"],           h:"miejsce nauki",               k:"Słówka" },
+  { p:"Co znaczy 'der Lehrer'?",       o:["nauczyciel"],       h:"uczy innych",                 k:"Słówka" },
+  { p:"Co znaczy 'die Mutter'?",       o:["mama","matka"],     h:"rodzina",                     k:"Słówka" },
+  { p:"Co znaczy 'der Vater'?",        o:["tata","ojciec"],    h:"rodzina",                     k:"Słówka" },
+  { p:"Co znaczy 'das Haus'?",         o:["dom"],              h:"tu mieszkamy",                k:"Słówka" },
+  { p:"Co znaczy 'das Wasser'?",       o:["woda"],             h:"pijemy ją",                   k:"Słówka" },
+  { p:"Co znaczy 'das Brot'?",         o:["chleb"],            h:"jedzenie, piekarnia",         k:"Słówka" },
+  { p:"Co znaczy 'die Stadt'?",        o:["miasto"],           h:"np. Berlin, Warszawa",        k:"Słówka" },
+  { p:"Co znaczy 'der Freund'?",       o:["przyjaciel","kolega"], h:"osoba bliska",             k:"Słówka" },
+  // Liczby
+  { p:"Jak po niemiecku jest liczba 1?",   o:["eins"],      h:"jeden",        k:"Liczby" },
+  { p:"Jak po niemiecku jest liczba 2?",   o:["zwei"],      h:"dwa",          k:"Liczby" },
+  { p:"Jak po niemiecku jest liczba 3?",   o:["drei"],      h:"trzy",         k:"Liczby" },
+  { p:"Jak po niemiecku jest liczba 5?",   o:["fünf","funf"], h:"pięć",       k:"Liczby" },
+  { p:"Jak po niemiecku jest liczba 10?",  o:["zehn"],      h:"dziesięć",     k:"Liczby" },
+  { p:"Jak po niemiecku jest liczba 20?",  o:["zwanzig"],   h:"dwadzieścia",  k:"Liczby" },
+  { p:"Jak po niemiecku jest liczba 100?", o:["hundert"],   h:"sto",          k:"Liczby" },
+  { p:"Jak po niemiecku jest liczba 1000?",o:["tausend"],   h:"tysiąc",       k:"Liczby" },
+  // Kolory
+  { p:"Co znaczy 'rot'?",      o:["czerwony"],   h:"kolor krwi",   k:"Kolory" },
+  { p:"Co znaczy 'blau'?",     o:["niebieski"],  h:"kolor nieba",  k:"Kolory" },
+  { p:"Co znaczy 'grün'?",     o:["zielony"],    h:"kolor trawy",  k:"Kolory" },
+  { p:"Co znaczy 'gelb'?",     o:["żółty","zolty"], h:"kolor słońca", k:"Kolory" },
+  { p:"Co znaczy 'schwarz'?",  o:["czarny"],     h:"ciemny kolor", k:"Kolory" },
+  { p:"Co znaczy 'weiß'?",     o:["biały","bialy"], h:"kolor śniegu", k:"Kolory" },
+  { p:"Co znaczy 'orange'?",   o:["pomarańczowy","pomaranczowy"], h:"kolor pomarańczy", k:"Kolory" },
+  { p:"Co znaczy 'rosa'?",     o:["różowy","rozowy"], h:"jasny kolor", k:"Kolory" },
+  // Zwroty
+  { p:"Co znaczy 'Guten Morgen'?",      o:["dzień dobry","dzien dobry","dzień dobry (rano)"], h:"poranne powitanie",   k:"Zwroty" },
+  { p:"Co znaczy 'Guten Tag'?",         o:["dzień dobry","dzien dobry"],          h:"powitanie w ciągu dnia", k:"Zwroty" },
+  { p:"Co znaczy 'Gute Nacht'?",        o:["dobranoc"],           h:"na dobranoc",         k:"Zwroty" },
+  { p:"Co znaczy 'Auf Wiedersehen'?",   o:["do widzenia"],        h:"pożegnanie",          k:"Zwroty" },
+  { p:"Co znaczy 'Danke schön'?",       o:["dziękuję bardzo"],    h:"grzeczne słowo",      k:"Zwroty" },
+  { p:"Co znaczy 'Bitte'?",             o:["proszę"],             h:"grzeczne słowo",      k:"Zwroty" },
+  { p:"Co znaczy 'Entschuldigung'?",    o:["przepraszam"],        h:"gdy coś się stało",   k:"Zwroty" },
+  { p:"Co znaczy 'Wie heißt du?'",      o:["jak masz na imię","jak sie nazywasz"], h:"pytanie o imię", k:"Zwroty" },
+  // Dni tygodnia
+  { p:"Co znaczy 'Montag'?",     o:["poniedziałek","poniedzialek"], h:"pierwszy dzień tygodnia", k:"Dni tygodnia" },
+  { p:"Co znaczy 'Dienstag'?",   o:["wtorek"],    h:"drugi dzień tygodnia",  k:"Dni tygodnia" },
+  { p:"Co znaczy 'Mittwoch'?",   o:["środa","sroda"], h:"środek tygodnia",   k:"Dni tygodnia" },
+  { p:"Co znaczy 'Donnerstag'?", o:["czwartek"],  h:"czwarty dzień",         k:"Dni tygodnia" },
+  { p:"Co znaczy 'Freitag'?",    o:["piątek","piatek"], h:"ostatni dzień szkolny", k:"Dni tygodnia" },
+  { p:"Co znaczy 'Samstag'?",    o:["sobota"],    h:"weekend!",              k:"Dni tygodnia" },
+  { p:"Co znaczy 'Sonntag'?",    o:["niedziela"], h:"dzień wolny",           k:"Dni tygodnia" },
+];
+
+let kolejka = [], indeks = 0, punkty = 0, podpowiedz_uzyta = false;
+let historia = [], poprawnych = 0, blednych = 0, pominieto = 0;
+
+function shuffle(arr) {
+  for(let i=arr.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]]=[arr[j],arr[i]];
+  }
+  return arr;
+}
+
+function startGra() {
+  kolejka = shuffle([...PYTANIA]);
+  indeks = 0; punkty = 0; historia = [];
+  poprawnych = 0; blednych = 0; pominieto = 0;
+  document.getElementById('ekran-start').style.display = 'none';
+  document.getElementById('ekran-gra').style.display = 'block';
+  pokazPytanie();
+}
+
+function pokazPytanie() {
+  if (indeks >= kolejka.length) { koniecGry(); return; }
+  const q = kolejka[indeks];
+  podpowiedz_uzyta = false;
+
+  document.getElementById('lbl-postep').textContent = `Pytanie ${indeks+1} / ${kolejka.length}`;
+  document.getElementById('lbl-punkty').textContent = `⭐ ${punkty} pkt`;
+  document.getElementById('lbl-kat').textContent = katIcon(q.k) + ' ' + q.k;
+  document.getElementById('lbl-pytanie').textContent = q.p;
+  document.getElementById('hint-tekst').textContent = '';
+  document.getElementById('feedback').textContent = '';
+  document.getElementById('feedback').className = 'feedback';
+
+  const inp = document.getElementById('odpowiedz');
+  inp.value = '';
+  inp.className = '';
+  inp.disabled = false;
+  inp.focus();
+
+  setDisabled(false);
+  document.getElementById('btn-dalej').style.display = 'none';
+
+  const prog = ((indeks) / kolejka.length) * 100;
+  document.getElementById('progress-bar').style.width = prog + '%';
+}
+
+function katIcon(k) {
+  return {Słówka:'📚', Liczby:'🔢', Kolory:'🎨', Zwroty:'💬', 'Dni tygodnia':'📅'}[k] || '📖';
+}
+
+function setDisabled(disabled) {
+  document.getElementById('btn-ok').disabled = disabled;
+  document.getElementById('btn-hint').disabled = disabled;
+  document.getElementById('btn-skip').disabled = disabled;
+  document.getElementById('odpowiedz').disabled = disabled;
+}
+
+function normalize(s) {
+  return s.toLowerCase().trim()
+    .replace(/ą/g,'a').replace(/ę/g,'e').replace(/ó/g,'o')
+    .replace(/ś/g,'s').replace(/ł/g,'l').replace(/ż/g,'z')
+    .replace(/ź/g,'z').replace(/ć/g,'c').replace(/ń/g,'n')
+    .replace(/ü/g,'u').replace(/ö/g,'o').replace(/ä/g,'a')
+    .replace(/ß/g,'ss');
+}
+
+function sprawdz() {
+  const q = kolejka[indeks];
+  const wpisana = document.getElementById('odpowiedz').value.trim();
+  if (!wpisana) return;
+
+  const poprawne = q.o.some(ans => normalize(wpisana) === normalize(ans));
+  const inp = document.getElementById('odpowiedz');
+  const fb = document.getElementById('feedback');
+
+  if (poprawne) {
+    const pkt = podpowiedz_uzyta ? 1 : 2;
+    punkty += pkt;
+    poprawnych++;
+    inp.className = 'correct';
+    fb.textContent = `✅ Dobrze! +${pkt} pkt`;
+    fb.className = 'feedback ok pop';
+    addHistoria('✅', q.o[0]);
+  } else {
+    blednych++;
+    inp.className = 'wrong';
+    fb.textContent = `❌ Źle! Poprawnie: ${q.o[0]}`;
+    fb.className = 'feedback zle pop';
+    addHistoria('❌', q.o[0]);
+  }
+
+  document.getElementById('lbl-punkty').textContent = `⭐ ${punkty} pkt`;
+  setDisabled(true);
+  document.getElementById('btn-dalej').style.display = 'block';
+}
+
+function podpowiedz() {
+  const q = kolejka[indeks];
+  document.getElementById('hint-tekst').textContent = `💡 ${q.h}`;
+  podpowiedz_uzyta = true;
+  document.getElementById('btn-hint').disabled = true;
+}
+
+function pomin() {
+  const q = kolejka[indeks];
+  pominieto++;
+  document.getElementById('feedback').textContent = `⏭ Pominięto. Odpowiedź: ${q.o[0]}`;
+  document.getElementById('feedback').className = 'feedback skip';
+  addHistoria('⏭', q.o[0]);
+  setDisabled(true);
+  document.getElementById('btn-dalej').style.display = 'block';
+}
+
+function nastepne() {
+  indeks++;
+  pokazPytanie();
+}
+
+function addHistoria(ikona, odp) {
+  historia.push(`${ikona} ${odp}`);
+  const ostatnie = historia.slice(-5).join('  |  ');
+  document.getElementById('historia').innerHTML = `<strong>Ostatnie:</strong> ${ostatnie}`;
+}
+
+function koniecGry() {
+  document.getElementById('ekran-gra').style.display = 'none';
+  document.getElementById('ekran-koniec').style.display = 'block';
+
+  const maxPkt = kolejka.length * 2;
+  const procent = Math.round(punkty / maxPkt * 100);
+
+  document.getElementById('wynik-liczba').textContent = punkty;
+  document.getElementById('wynik-max').textContent = `z ${maxPkt} punktów (${procent}%)`;
+
+  setTimeout(() => {
+    document.getElementById('pasek-koniec-fill').style.width = procent + '%';
+  }, 100);
+
+  let ocena, kolor;
+  if (procent >= 90)      { ocena = '🏆 Znakomicie! Jesteś mistrzem!'; kolor = '#f7c948'; }
+  else if (procent >= 75) { ocena = '😊 Bardzo dobrze! Tak trzymaj!'; kolor = '#3fb950'; }
+  else if (procent >= 55) { ocena = '📖 Nieźle! Warto trochę powtórzyć.'; kolor = '#58a6ff'; }
+  else if (procent >= 35) { ocena = '💪 Ćwicz dalej, dasz radę!'; kolor = '#fbbf24'; }
+  else                    { ocena = '📚 Trzeba się jeszcze pouczyć!'; kolor = '#f85149'; }
+
+  const el = document.getElementById('ocena-tekst');
+  el.textContent = ocena;
+  el.style.color = kolor;
+
+  document.getElementById('stat-tekst').textContent =
+    `✅ Poprawnych: ${poprawnych}  ❌ Błędnych: ${blednych}  ⏭ Pominiętych: ${pominieto}`;
+}
+
+function restart() {
+  document.getElementById('ekran-koniec').style.display = 'none';
+  document.getElementById('ekran-start').style.display = 'block';
+}
+
+// Enter działa jak przycisk Sprawdź
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    if (!document.getElementById('btn-ok').disabled) sprawdz();
+    else if (document.getElementById('btn-dalej').style.display !== 'none') nastepne();
+  }
+});
+</script>
+</body>
+</html>
